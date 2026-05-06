@@ -2,8 +2,8 @@
 pragma solidity ^0.8.0;
 
 contract TicketNFT {
-    string public name = "ConcertTicket";
-    string public symbol = "CTK";
+    string public name = "Ticket";
+    string public symbol = "TKT";
 
     struct Ticket {
         uint256 ticketId;
