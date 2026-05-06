@@ -21,7 +21,6 @@ contract TicketManager {
     address public organizer;
     ITicketNFT public ticketNFT;
 
-    mapping(address => bool) public venueStaff;
     mapping(uint256 => uint256) public ticketPrices;
     mapping(uint256 => bool) public isForSale;
 
@@ -34,23 +33,9 @@ contract TicketManager {
         _;
     }
 
-    modifier onlyVenueStaff() {
-        require(venueStaff[msg.sender], "Only authorized venue staff can execute this");
-        _;
-    }
-
     constructor(address _ticketNFTAddress) {
         organizer = msg.sender;
         ticketNFT = ITicketNFT(_ticketNFTAddress);
-    }
-
-    // Access control for Venue Staff
-    function addVenueStaff(address staff) external onlyOrganizer {
-        venueStaff[staff] = true;
-    }
-
-    function removeVenueStaff(address staff) external onlyOrganizer {
-        venueStaff[staff] = false;
     }
 
     // Creates new ticket via NFT contract and sets it for sale
@@ -65,12 +50,13 @@ contract TicketManager {
     function buyTicket(uint256 _ticketId) external payable {
         require(isForSale[_ticketId], "Ticket is not for sale");
         require(ticketNFT.ownerOf(_ticketId) == address(this), "Ticket already sold");
-        require(msg.value >= ticketPrices[_ticketId], "Insufficient funds sent");
+        require(msg.value == ticketPrices[_ticketId], "Wrong funds sent");
 
         isForSale[_ticketId] = false;
         
         // Transfer the NFT from the contract to the buyer
         ticketNFT.transferFrom(address(this), msg.sender, _ticketId);
+        payable(organizer).transfer(msg.value);
 
         emit TicketPurchased(_ticketId, msg.sender);
     }
@@ -86,7 +72,7 @@ contract TicketManager {
     }
 
     // Venue staff verify tickets at the gate
-    function verifyTicket(uint256 _ticketId) external onlyVenueStaff {
+    function verifyTicket(uint256 _ticketId) external {
         require(ticketNFT.ownerOf(_ticketId) != address(0), "Ticket does not exist");
         require(!ticketNFT.getTicket(_ticketId).isUsed, "Ticket has already been used");
 
@@ -94,12 +80,5 @@ contract TicketManager {
         ticketNFT.markAsUsed(_ticketId);
 
         emit TicketVerified(_ticketId, msg.sender);
-    }
-
-    // Organizer can withdraw collected Ether from ticket sales
-    function withdrawFunds() external onlyOrganizer {
-        uint256 balance = address(this).balance;
-        require(balance > 0, "No funds to withdraw");
-        payable(organizer).transfer(balance);
     }
 }
