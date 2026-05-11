@@ -14,7 +14,6 @@ contract TicketNFT {
     }
 
     address public owner;
-    address public manager;
 
     mapping(uint256 => Ticket) public tickets;
     mapping(uint256 => address) private _owners;
@@ -25,18 +24,13 @@ contract TicketNFT {
     event Transfer(address indexed from, address indexed to, uint256 indexed tokenId);
     event Minted(uint256 indexed ticketId, string eventName, string seatNumber, uint256 eventDate);
 
-    modifier onlyOwnerOrManager() {
-        require(msg.sender == owner || msg.sender == manager, "Not authorized");
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Not authorized");
         _;
     }
 
     constructor() {
         owner = msg.sender;
-    }
-
-    function setManager(address _manager) external {
-        require(msg.sender == owner, "Only owner can set manager");
-        manager = _manager;
     }
 
     function ownerOf(uint256 tokenId) public view returns (address) {
@@ -50,7 +44,7 @@ contract TicketNFT {
         return _balances[tokenOwner];
     }
 
-    function mintTicket(address to, string memory _eventName, string memory _seatNumber, uint256 _eventDate) external onlyOwnerOrManager returns (uint256) {
+    function mintTicket(address to, string memory _eventName, string memory _seatNumber, uint256 _eventDate) external onlyOwner returns (uint256) {
         require(to != address(0), "Cannot mint to zero address");
 
         totalSupply++;
@@ -75,8 +69,8 @@ contract TicketNFT {
 
     function transferFrom(address from, address to, uint256 tokenId) external {
         require(_owners[tokenId] == from, "Not the owner");
-        // Allow the owner themselves, or the manager contract to move the token
-        require(msg.sender == from || msg.sender == manager, "Not authorized to transfer");
+        // Allow the owner themselves, or the owner contract to move the token
+        require(msg.sender == from || msg.sender == owner, "Not authorized to transfer");
         require(to != address(0), "Transfer to zero address");
 
         _balances[from] -= 1;
@@ -87,7 +81,7 @@ contract TicketNFT {
     }
 
     function markAsUsed(uint256 tokenId) external {
-        require(msg.sender == manager, "Only manager contract can update usage state");
+        require(msg.sender == owner, "Only owner can update usage state");
         require(_owners[tokenId] != address(0), "Invalid token");
         tickets[tokenId].isUsed = true;
     }
