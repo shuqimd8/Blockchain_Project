@@ -92,4 +92,4 @@ To simulate a real-world scenario, you can use the test accounts provided by Gan
 - Payment transfer backend fixes
 
 ## BPMN Diagram
-![BPMN Diagram](bpmn.drawio.png)
+![BPMN Diagram](bpmn-diagram.png)
