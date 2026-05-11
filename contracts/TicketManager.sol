@@ -56,7 +56,8 @@ contract TicketManager {
         
         // Transfer the NFT from the contract to the buyer
         ticketNFT.transferFrom(address(this), msg.sender, _ticketId);
-        payable(organizer).transfer(msg.value);
+        (bool sent, ) = payable(organizer).call{value: msg.value}("");
+        require(sent, "Payment failed");
 
         emit TicketPurchased(_ticketId, msg.sender);
     }
