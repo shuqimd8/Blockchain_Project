@@ -79,3 +79,17 @@ To simulate a real-world scenario, you can use the test accounts provided by Gan
 3. Enter `_ticketId`: `1`
 4. Click **transact**.
 5. *Verification:* If you look at the `TicketNFT` contract and query `getTicket` with ID `1`, the `isUsed` property will now be set to `true`. If someone tries to call `transferTicket` on ID `1` again, the transaction will fail.
+
+## Contribution
+### Jasmine
+- Smart contract interactions
+- Backend development
+
+### Shuqi
+- Methodology
+- PPT slides
+- BPMN diagram
+- Payment transfer backend fixes
+
+## BPMN Diagram
+![BPMN Diagram](bpmn.drawio.png)
