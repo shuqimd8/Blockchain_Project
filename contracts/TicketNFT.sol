@@ -39,7 +39,7 @@ contract TicketNFT {
         return _balances[tokenOwner];
     }
 
-    function mintTicket(address to, string memory _eventName, string memory _seatNumber, uint256 _eventDate) returns (uint256) {
+    function mintTicket(address to, string memory _eventName, string memory _seatNumber, uint256 _eventDate) external returns (uint256) {
         require(to != address(0), "Cannot mint to zero address");
 
         totalSupply++;
