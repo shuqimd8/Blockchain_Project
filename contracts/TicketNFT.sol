@@ -76,7 +76,6 @@ contract TicketNFT {
     }
 
     function markAsUsed(uint256 tokenId) external {
-        require(msg.sender == owner, "Only owner can update usage state");
         require(_owners[tokenId] != address(0), "Invalid token");
         tickets[tokenId].isUsed = true;
     }
