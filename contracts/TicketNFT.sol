@@ -24,11 +24,6 @@ contract TicketNFT {
     event Transfer(address indexed from, address indexed to, uint256 indexed tokenId);
     event Minted(uint256 indexed ticketId, string eventName, string seatNumber, uint256 eventDate);
 
-    modifier onlyOwner() {
-        require(msg.sender == owner, "Not authorized");
-        _;
-    }
-
     constructor() {
         owner = msg.sender;
     }
@@ -44,7 +39,7 @@ contract TicketNFT {
         return _balances[tokenOwner];
     }
 
-    function mintTicket(address to, string memory _eventName, string memory _seatNumber, uint256 _eventDate) external onlyOwner returns (uint256) {
+    function mintTicket(address to, string memory _eventName, string memory _seatNumber, uint256 _eventDate) returns (uint256) {
         require(to != address(0), "Cannot mint to zero address");
 
         totalSupply++;
