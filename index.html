@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Chain NFT Ticket System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        
+        h2 {
+            color: #555;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .wallet-info {
+            background: linear-gradient(135deg, #e0f7fa 0%, #e1bee7 100%);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 5px solid #667eea;
+        }
+
+        .wallet-info p {
+            margin: 8px 0;
+            font-size: 14px;
+        }
+
+        .wallet-info strong {
+            color: #333;
+        }
+
+        .network-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            margin: 5px 0;
+        }
+
+        .network-sepolia {
+            background-color: #627EEA;
+            color: white;
+        }
+
+        .network-polygon {
+            background-color: #8247E5;
+            color: white;
+        }
+        
+        .ticket-card {
+            border: 2px solid #e0e0e0;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #fff 0%, #f5f5f5 100%);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .ticket-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+        
+        .ticket-card h3 {
+            margin-top: 0;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .ticket-card p {
+            margin: 8px 0;
+            color: #555;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .status-available {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .status-used {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+            font-size: 18px;
+        }
+
+        .error {
+            background-color: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 4px solid #c62828;
+        }
+
+        .success {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 4px solid #2e7d32;
+        }
+
+        #message {
+            margin: 20px 0;
+        }
+
+        .info-box {
+            background-color: #e3f2fd;
+            border-left: 4px solid #2196F3;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .info-box h3 {
+            color: #1976D2;
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+
+        .info-box ul {
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+
+        .info-box li {
+            margin: 8px 0;
+            color: #555;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        .comparison-table th {
+            background-color: #667eea;
+            color: white;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background-color: #f5f5f5;
+        }
+    </style>
+</head>
+<body>
+    <h1>Multi-Chain NFT Ticket System</h1>
+    <p class="subtitle">Ethereum Layer 1 + Polygon Layer 2 Implementation</p>
+
+    <!-- Network Info -->
+    <div class="container">
+        <div class="info-box">
+            <h3>Supported Networks - Layer 2 Scaling Solution</h3>
+            <p>This system demonstrates blockchain scalability using both Layer 1 and Layer 2 networks:</p>
+            <ul>
+                <li><strong>Sepolia Testnet (Layer 1)</strong> - Ethereum's test network for development</li>
+                <li><strong>Polygon Mumbai (Layer 2)</strong> - High-performance Layer 2 scaling solution</li>
+            </ul>
+            <p><strong>Switch networks in MetaMask to experience the difference!</strong></p>
+            
+            <table class="comparison-table">
+                <tr>
+                    <th>Feature</th>
+                    <th>Sepolia (L1)</th>
+                    <th>Polygon Mumbai (L2)</th>
+                </tr>
+                <tr>
+                    <td>Transaction Speed</td>
+                    <td>~15 seconds</td>
+                    <td>~2 seconds ⚡</td>
+                </tr>
+                <tr>
+                    <td>Gas Cost</td>
+                    <td>Higher</td>
+                    <td>99% cheaper </td>
+                </tr>
+                <tr>
+                    <td>Security</td>
+                    <td>Ethereum security</td>
+                    <td>Ethereum security </td>
+                </tr>
+                <tr>
+                    <td>Best For</td>
+                    <td>Development & Testing</td>
+                    <td>High-volume events </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- Wallet Connection Section -->
+    <div class="container">
+        <h2>Wallet Connection</h2>
+        <button id="connectButton" onclick="connectWallet()">Connect MetaMask</button>
+        <div id="walletInfo" class="wallet-info" style="display: none;">
+            <p><strong>Connected Account:</strong> <span id="userAddress"></span></p>
+            <p><strong>Balance:</strong> <span id="userBalance"></span> <span id="currencySymbol">ETH</span></p>
+            <p><strong>Network:</strong> <span id="networkName" class="network-badge"></span></p>
+        </div>
+    </div>
+
+    <!-- Message Display -->
+    <div id="message"></div>
+
+    <!-- Organizer Section: Mint Tickets -->
+    <div class="container" id="organizerSection" style="display: none;">
+        <h2>Mint New Ticket (Organizer Only)</h2>
+        <div class="form-group">
+            <label>Event Name:</label>
+            <input type="text" id="eventName" placeholder="e.g., Taylor Swift Concert">
+        </div>
+        <div class="form-group">
+            <label>Seat Number:</label>
+            <input type="text" id="seatNumber" placeholder="e.g., A12">
+        </div>
+        <div class="form-group">
+            <label>Event Date:</label>
+            <input type="date" id="eventDate">
+        </div>
+        <div class="form-group">
+            <label>Price (<span id="priceUnit">ETH</span>):</label>
+            <input type="number" step="0.001" id="ticketPrice" placeholder="e.g., 0.1">
+        </div>
+        <button onclick="mintTicket()">Mint Ticket</button>
+    </div>
+
+    <!-- Available Tickets Section -->
+    <div class="container">
+        <h2>Available Tickets</h2>
+        <button onclick="loadAvailableTickets()">Refresh Tickets</button>
+        <div id="availableTickets">
+            <p class="loading">Connect your wallet to view tickets</p>
+        </div>
+    </div>
+
+    <!-- My Tickets Section -->
+    <div class="container">
+        <h2>My Tickets</h2>
+        <button onclick="loadMyTickets()">Refresh My Tickets</button>
+        <div id="myTickets">
+            <p class="loading">Connect your wallet to view your tickets</p>
+        </div>
+    </div>
+
+    <!-- Transfer Ticket Section -->
+    <div class="container">
+        <h2>Transfer Ticket</h2>
+        <div class="form-group">
+            <label>Ticket ID:</label>
+            <input type="number" id="transferTicketId" placeholder="Enter ticket ID">
+        </div>
+        <div class="form-group">
+            <label>Recipient Address:</label>
+            <input type="text" id="recipientAddress" placeholder="0x...">
+        </div>
+        <button onclick="transferTicket()">Transfer Ticket</button>
+    </div>
+
+    <!-- Verify Ticket Section -->
+    <div class="container" id="staffSection" style="display: none;">
+        <h2>Verify Ticket (Staff Only)</h2>
+        <div class="form-group">
+            <label>Ticket ID:</label>
+            <input type="number" id="verifyTicketId" placeholder="Enter ticket ID">
+        </div>
+        <button onclick="verifyTicket()">Mark as Used</button>
+    </div>
+
+    <!-- Load Ethers.js -->
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+    
+    <script>
+        // Contract Addresses for Different Networks
+        const CONTRACTS = {
+            // Sepolia (Ethereum Layer 1 Testnet)
+            11155111: {
+                TICKET_NFT_ADDRESS: "0xD05a9B838e2601b88d151584cF0bcA0D1AD1A31D",
+                TICKET_MANAGER_ADDRESS: "0xcA3E042Ef1b5e3613137A055d2A39Bd31db67602",
+                networkName: "Sepolia Testnet (Layer 1)",
+                networkClass: "network-sepolia",
+                currencySymbol: "ETH"
+            },
+            // Polygon Mumbai (Layer 2 Testnet) - ADD YOUR POLYGON ADDRESSES HERE
+            80001: {
+                TICKET_NFT_ADDRESS: "PASTE_POLYGON_TICKETNFT_ADDRESS_HERE",
+                TICKET_MANAGER_ADDRESS: "PASTE_POLYGON_TICKETMANAGER_ADDRESS_HERE",
+                networkName: "Polygon Mumbai (Layer 2)",
+                networkClass: "network-polygon",
+                currencySymbol: "MATIC"
+            }
+        };
+
+        let provider;
+        let signer;
+        let ticketNFTContract;
+        let ticketManagerContract;
+        let userAddress;
+        let currentNetwork;
+
+        // Load ABIs
+        let ticketNFTAbi;
+        let ticketManagerAbi;
+
+        // Load ABI files when page loads
+        window.addEventListener('load', async () => {
+            try {
+                const nftResponse = await fetch('contracts/TicketNFT.json');
+                ticketNFTAbi = await nftResponse.json();
+                
+                const managerResponse = await fetch('contracts/TicketManager.json');
+                ticketManagerAbi = await managerResponse.json();
+                
+                console.log('ABIs loaded successfully');
+            } catch (error) {
+                console.error('Error loading ABIs:', error);
+                showMessage('Error loading contract ABIs. Make sure JSON files are in contracts folder.', 'error');
+            }
+        });
+
+        // Connect Wallet Function
+        async function connectWallet() {
+            try {
+                if (typeof window.ethereum === 'undefined') {
+                    showMessage('Please install MetaMask!', 'error');
+                    return;
+                }
+
+                const accounts = await window.ethereum.request({ 
+                    method: 'eth_requestAccounts' 
+                });
+                
+                userAddress = accounts[0];
+                provider = new ethers.providers.Web3Provider(window.ethereum);
+                signer = provider.getSigner();
+
+                const network = await provider.getNetwork();
+                currentNetwork = network.chainId;
+
+                if (!CONTRACTS[currentNetwork]) {
+                    showMessage('Unsupported Network! Please switch to Sepolia or Polygon Mumbai in MetaMask.', 'error');
+                    return;
+                }
+
+                const networkConfig = CONTRACTS[currentNetwork];
+                const balance = await provider.getBalance(userAddress);
+                const balanceInEth = ethers.utils.formatEther(balance);
+
+                ticketNFTContract = new ethers.Contract(
+                    networkConfig.TICKET_NFT_ADDRESS,
+                    ticketNFTAbi,
+                    signer
+                );
+
+                ticketManagerContract = new ethers.Contract(
+                    networkConfig.TICKET_MANAGER_ADDRESS,
+                    ticketManagerAbi,
+                    signer
+                );
+
+                document.getElementById('userAddress').textContent = 
+                    userAddress.substring(0, 6) + '...' + userAddress.substring(38);
+                document.getElementById('userBalance').textContent = 
+                    parseFloat(balanceInEth).toFixed(4);
+                document.getElementById('currencySymbol').textContent = networkConfig.currencySymbol;
+                document.getElementById('priceUnit').textContent = networkConfig.currencySymbol;
+                
+                const networkBadge = document.getElementById('networkName');
+                networkBadge.textContent = networkConfig.networkName;
+                networkBadge.className = 'network-badge ' + networkConfig.networkClass;
+                
+                document.getElementById('walletInfo').style.display = 'block';
+                document.getElementById('connectButton').textContent = 'Connected ✓';
+                document.getElementById('connectButton').disabled = true;
+
+                try {
+                    const owner = await ticketManagerContract.organizer();
+                    if (owner.toLowerCase() === userAddress.toLowerCase()) {
+                        document.getElementById('organizerSection').style.display = 'block';
+                        document.getElementById('staffSection').style.display = 'block';
+                    }
+                } catch (error) {
+                    console.log('Not organizer');
+                }
+
+                showMessage(`Connected successfully to ${networkConfig.networkName}!`, 'success');
+                
+                await loadAvailableTickets();
+                await loadMyTickets();
+
+            } catch (error) {
+                console.error('Error connecting wallet:', error);
+                showMessage('Error connecting wallet: ' + error.message, 'error');
+            }
+        }
+
+        async function mintTicket() {
+            try {
+                if (!ticketManagerContract) {
+                    showMessage('Please connect your wallet first!', 'error');
+                    return;
+                }
+
+                const eventName = document.getElementById('eventName').value;
+                const seatNumber = document.getElementById('seatNumber').value;
+                const eventDate = document.getElementById('eventDate').value;
+                const price = document.getElementById('ticketPrice').value;
+
+                if (!eventName || !seatNumber || !eventDate || !price) {
+                    showMessage('Please fill all fields!', 'error');
+                    return;
+                }
+
+                const timestamp = Math.floor(new Date(eventDate).getTime() / 1000);
+                const priceInWei = ethers.utils.parseEther(price);
+
+                showMessage('Minting ticket... Please confirm transaction in MetaMask', 'loading');
+
+                const tx = await ticketManagerContract.mintTicket(
+                    eventName,
+                    seatNumber,
+                    timestamp,
+                    priceInWei
+                );
+
+                showMessage('Transaction submitted. Waiting for confirmation...', 'loading');
+                await tx.wait();
+
+                showMessage('Ticket minted successfully!', 'success');
+
+                document.getElementById('eventName').value = '';
+                document.getElementById('seatNumber').value = '';
+                document.getElementById('eventDate').value = '';
+                document.getElementById('ticketPrice').value = '';
+
+                await loadAvailableTickets();
+
+            } catch (error) {
+                console.error('Error minting ticket:', error);
+                showMessage('Error minting ticket: ' + error.message, 'error');
+            }
+        }
+
+        async function loadAvailableTickets() {
+            try {
+                if (!ticketManagerContract) {
+                    return;
+                }
+
+                const availableDiv = document.getElementById('availableTickets');
+                availableDiv.innerHTML = '<p class="loading">Loading tickets...</p>';
+
+                const tickets = await ticketManagerContract.getAvailableTickets();
+                
+                if (tickets.length === 0) {
+                    availableDiv.innerHTML = '<p>No tickets available for sale.</p>';
+                    return;
+                }
+
+                const networkConfig = CONTRACTS[currentNetwork];
+                let html = '';
+                
+                for (let ticketId of tickets) {
+                    const ticket = await ticketNFTContract.getTicket(ticketId);
+                    const price = await ticketManagerContract.ticketPrices(ticketId);
+                    
+                    const date = new Date(ticket.eventDate.toNumber() * 1000);
+                    const priceInEth = ethers.utils.formatEther(price);
+
+                    html += `
+                        <div class="ticket-card">
+                            <h3>${ticket.eventName}</h3>
+                            <p><strong>Ticket ID:</strong> ${ticketId.toString()}</p>
+                            <p><strong>Seat:</strong> ${ticket.seatNumber}</p>
+                            <p><strong>Date:</strong> ${date.toLocaleDateString()}</p>
+                            <p><strong>Price:</strong> ${priceInEth} ${networkConfig.currencySymbol}</p>
+                            <p><strong>Status:</strong> <span class="status-badge status-available">Available</span></p>
+                            <button onclick="buyTicket(${ticketId}, '${priceInEth}')">Buy Ticket</button>
+                        </div>
+                    `;
+                }
+
+                availableDiv.innerHTML = html;
+
+            } catch (error) {
+                console.error('Error loading tickets:', error);
+                document.getElementById('availableTickets').innerHTML = 
+                    '<p class="error">Error loading tickets: ' + error.message + '</p>';
+            }
+        }
+
+        async function buyTicket(ticketId, price) {
+            try {
+                showMessage('Buying ticket... Please confirm transaction in MetaMask', 'loading');
+
+                const priceInWei = ethers.utils.parseEther(price);
+                
+                const tx = await ticketManagerContract.buyTicket(ticketId, {
+                    value: priceInWei
+                });
+
+                showMessage('Transaction submitted. Waiting for confirmation...', 'loading');
+                await tx.wait();
+
+                showMessage('Ticket purchased successfully!', 'success');
+
+                await loadAvailableTickets();
+                await loadMyTickets();
+
+            } catch (error) {
+                console.error('Error buying ticket:', error);
+                showMessage('Error buying ticket: ' + error.message, 'error');
+            }
+        }
+
+        async function loadMyTickets() {
+            try {
+                if (!ticketNFTContract || !userAddress) {
+                    return;
+                }
+
+                const myTicketsDiv = document.getElementById('myTickets');
+                myTicketsDiv.innerHTML = '<p class="loading">Loading your tickets...</p>';
+
+                const balance = await ticketNFTContract.balanceOf(userAddress);
+                
+                if (balance.toNumber() === 0) {
+                    myTicketsDiv.innerHTML = '<p>You don\'t own any tickets yet.</p>';
+                    return;
+                }
+
+                let html = '';
+                for (let i = 0; i < balance.toNumber(); i++) {
+                    const ticketId = await ticketNFTContract.tokenOfOwnerByIndex(userAddress, i);
+                    const ticket = await ticketNFTContract.getTicket(ticketId);
+                    
+                    const date = new Date(ticket.eventDate.toNumber() * 1000);
+                    const statusClass = ticket.isUsed ? 'status-used' : 'status-available';
+                    const statusText = ticket.isUsed ? 'Used' : 'Valid';
+
+                    html += `
+                        <div class="ticket-card">
+                            <h3>${ticket.eventName}</h3>
+                            <p><strong>Ticket ID:</strong> ${ticketId.toString()}</p>
+                            <p><strong>Seat:</strong> ${ticket.seatNumber}</p>
+                            <p><strong>Date:</strong> ${date.toLocaleDateString()}</p>
+                            <p><strong>Status:</strong> <span class="status-badge ${statusClass}">${statusText}</span></p>
+                        </div>
+                    `;
+                }
+
+                myTicketsDiv.innerHTML = html;
+
+            } catch (error) {
+                console.error('Error loading my tickets:', error);
+                document.getElementById('myTickets').innerHTML = 
+                    '<p class="error">Error loading your tickets: ' + error.message + '</p>';
+            }
+        }
+
+        async function transferTicket() {
+    try {
+        if (!ticketNFTContract) {
+            showMessage('Please connect your wallet first!', 'error');
+            return;
+        }
+
+        const ticketId = document.getElementById('transferTicketId').value;
+        const recipient = document.getElementById('recipientAddress').value;
+
+        if (!ticketId || !recipient) {
+            showMessage('Please fill all fields!', 'error');
+            return;
+        }
+
+        // Check if ticket is used
+        const ticket = await ticketNFTContract.getTicket(ticketId);
+        if (ticket.isUsed) {
+            showMessage('Cannot transfer a used ticket!', 'error');
+            return;
+        }
+
+        // Check ownership
+        const owner = await ticketNFTContract.ownerOf(ticketId);
+        if (owner.toLowerCase() !== userAddress.toLowerCase()) {
+            showMessage('You are not the owner of this ticket!', 'error');
+            return;
+        }
+
+        showMessage('Transferring ticket... Please confirm transaction in MetaMask', 'loading');
+
+        // Call TicketNFT directly (not through TicketManager)
+        const tx = await ticketNFTContract.transferFrom(userAddress, recipient, ticketId);
+
+        showMessage('Transaction submitted. Waiting for confirmation...', 'loading');
+        await tx.wait();
+
+        showMessage('Ticket transferred successfully!', 'success');
+
+        document.getElementById('transferTicketId').value = '';
+        document.getElementById('recipientAddress').value = '';
+
+        await loadMyTickets();
+        await loadAvailableTickets();
+
+    } catch (error) {
+        console.error('Error transferring ticket:', error);
+        showMessage('Error transferring ticket: ' + error.message, 'error');
+    }
+}
+
+        async function verifyTicket() {
+            try {
+                if (!ticketManagerContract) {
+                    showMessage('Please connect your wallet first!', 'error');
+                    return;
+                }
+
+                const ticketId = document.getElementById('verifyTicketId').value;
+
+                if (!ticketId) {
+                    showMessage('Please enter ticket ID!', 'error');
+                    return;
+                }
+
+                showMessage('Verifying ticket... Please confirm transaction in MetaMask', 'loading');
+
+                const tx = await ticketManagerContract.verifyTicket(ticketId);
+
+                showMessage('Transaction submitted. Waiting for confirmation...', 'loading');
+                await tx.wait();
+
+                showMessage('Ticket marked as used successfully!', 'success');
+
+                document.getElementById('verifyTicketId').value = '';
+
+                await loadMyTickets();
+
+            } catch (error) {
+                console.error('Error verifying ticket:', error);
+                showMessage('Error verifying ticket: ' + error.message, 'error');
+            }
+        }
+
+        function showMessage(text, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.innerHTML = `<div class="container ${type}">${text}</div>`;
+            
+            if (type === 'success' || type === 'error') {
+                setTimeout(() => {
+                    messageDiv.innerHTML = '';
+                }, 5000);
+            }
+        }
+
+        if (window.ethereum) {
+            window.ethereum.on('accountsChanged', function (accounts) {
+                window.location.reload();
+            });
+
+            window.ethereum.on('chainChanged', function (chainId) {
+                window.location.reload();
+            });
+        }
+    </script>
+</body>
+</html>
