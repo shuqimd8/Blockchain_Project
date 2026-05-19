@@ -15,6 +15,8 @@ interface ITicketNFT {
     function markAsUsed(uint256 tokenId) external;
     function ownerOf(uint256 tokenId) external view returns (address);
     function getTicket(uint256 tokenId) external view returns (Ticket memory);
+    function balanceOf(address owner) external view returns (uint256);
+    function tokenOfOwnerByIndex(address owner, uint256 index) external view returns (uint256);
 }
 
 contract TicketManager {
@@ -38,15 +40,12 @@ contract TicketManager {
         ticketNFT = ITicketNFT(_ticketNFTAddress);
     }
 
-    // Creates new ticket via NFT contract and sets it for sale
     function mintTicket(string memory _eventName, string memory _seatNumber, uint256 _eventDate, uint256 _price) external onlyOrganizer {
-        // Mint to this manager contract initially
         uint256 ticketId = ticketNFT.mintTicket(address(this), _eventName, _seatNumber, _eventDate);
         ticketPrices[ticketId] = _price;
         isForSale[ticketId] = true;
     }
 
-    // Users purchase available tickets
     function buyTicket(uint256 _ticketId) external payable {
         require(isForSale[_ticketId], "Ticket is not for sale");
         require(ticketNFT.ownerOf(_ticketId) == address(this), "Ticket already sold");
@@ -54,7 +53,6 @@ contract TicketManager {
 
         isForSale[_ticketId] = false;
         
-        // Transfer the NFT from the contract to the buyer
         ticketNFT.transferFrom(address(this), msg.sender, _ticketId);
         (bool sent, ) = payable(organizer).call{value: msg.value}("");
         require(sent, "Payment failed");
@@ -62,8 +60,7 @@ contract TicketManager {
         emit TicketPurchased(_ticketId, msg.sender);
     }
 
-    // Users transfer tickets directly using this wrapper function
-    function transferTicket(uint256 _ticketId, address _to) external {
+    function transferTicket(address _to, uint256 _ticketId) external {
         require(ticketNFT.ownerOf(_ticketId) == msg.sender, "You are not the owner of this ticket");
         require(!ticketNFT.getTicket(_ticketId).isUsed, "Cannot transfer a used ticket");
         
@@ -72,14 +69,34 @@ contract TicketManager {
         emit TicketTransferred(_ticketId, msg.sender, _to);
     }
 
-    // Venue staff verify tickets at the gate
     function verifyTicket(uint256 _ticketId) external {
         require(ticketNFT.ownerOf(_ticketId) != address(0), "Ticket does not exist");
         require(!ticketNFT.getTicket(_ticketId).isUsed, "Ticket has already been used");
 
-        // Mark the ticket as used inside the NFT contract
         ticketNFT.markAsUsed(_ticketId);
 
         emit TicketVerified(_ticketId, msg.sender);
+    }
+
+    function getAvailableTickets() public view returns (uint256[] memory) {
+        uint256 totalTickets = 0;
+        
+        for (uint256 i = 0; i < 1000; i++) {
+            if (isForSale[i] && ticketPrices[i] > 0) {
+                totalTickets++;
+            }
+        }
+        
+        uint256[] memory availableTickets = new uint256[](totalTickets);
+        uint256 currentIndex = 0;
+        
+        for (uint256 i = 0; i < 1000; i++) {
+            if (isForSale[i] && ticketPrices[i] > 0) {
+                availableTickets[currentIndex] = i;
+                currentIndex++;
+            }
+        }
+        
+        return availableTickets;
     }
 }
