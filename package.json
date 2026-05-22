@@ -1,0 +1,28 @@
+{
+  "name": "blockchain_project",
+  "version": "1.0.0",
+  "description": "This project contains two smart contracts (`TicketManager.sol` and `TicketNFT.sol`) located in the `contracts` folder. You can test and run them using **Remix Desktop IDE** and **Ganache**.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/strawberryshortcakeeee/Blockchain_Project.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/strawberryshortcakeeee/Blockchain_Project/issues"
+  },
+  "homepage": "https://github.com/strawberryshortcakeeee/Blockchain_Project#readme",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "dotenv": "^17.4.2",
+    "hardhat": "^2.28.6"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.6.1"
+  }
+}
