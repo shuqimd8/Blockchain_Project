@@ -607,9 +607,9 @@
                 const priceInWei = ethers.utils.parseEther(price);
                 
                 const tx = await ticketManagerContract.buyTicket(ticketId, {
-                    value: priceInWei,
-                    { gasPrice: ethers.utils.parseUnits('30', 'gwei') }
-                });
+                value: priceInWei,
+                gasPrice: ethers.utils.parseUnits('30', 'gwei')  
+                    });
 
                 showMessage('Transaction submitted. Waiting for confirmation...', 'loading');
                 await tx.wait();
