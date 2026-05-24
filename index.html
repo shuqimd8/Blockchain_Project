@@ -530,7 +530,7 @@
                     eventName,
                     seatNumber,
                     timestamp,
-                    priceInWei
+                    priceInWei,
                     { gasPrice: ethers.utils.parseUnits('30', 'gwei') }
                 );
 
@@ -607,8 +607,8 @@
                 const priceInWei = ethers.utils.parseEther(price);
                 
                 const tx = await ticketManagerContract.buyTicket(ticketId, {
-                    value: priceInWei
-                    gasPrice: ethers.utils.parseUnits('30', 'gwei')
+                    value: priceInWei,
+                    { gasPrice: ethers.utils.parseUnits('30', 'gwei') }
                 });
 
                 showMessage('Transaction submitted. Waiting for confirmation...', 'loading');
@@ -702,8 +702,9 @@
         showMessage('Transferring ticket... Please confirm transaction in MetaMask', 'loading');
 
         // Call TicketNFT directly (not through TicketManager)
-        const tx = await ticketNFTContract.transferFrom(userAddress, recipient, ticketId);
-         gasPrice: ethers.utils.parseUnits('30', 'gwei')
+        const tx = await ticketNFTContract.transferFrom(userAddress, recipient, ticketId, {
+        gasPrice: ethers.utils.parseUnits('30', 'gwei')
+        });
 
         showMessage('Transaction submitted. Waiting for confirmation...', 'loading');
         await tx.wait();
@@ -738,7 +739,9 @@
 
                 showMessage('Verifying ticket... Please confirm transaction in MetaMask', 'loading');
 
-                const tx = await ticketManagerContract.verifyTicket(ticketId);
+                const tx = await ticketManagerContract.verifyTicket(ticketId, {
+                gasPrice: ethers.utils.parseUnits('30', 'gwei')
+                });
 
                 showMessage('Transaction submitted. Waiting for confirmation...', 'loading');
                 await tx.wait();
