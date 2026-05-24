@@ -13,7 +13,7 @@ module.exports = {
       url: "https://rpc-amoy.polygon.technology/",
       accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
       chainId: 80002,
-      gasPrice: 35000000000
+      gasPrice: 30000000000 
     }
   }
 };

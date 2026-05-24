@@ -531,6 +531,7 @@
                     seatNumber,
                     timestamp,
                     priceInWei
+                    { gasPrice: ethers.utils.parseUnits('30', 'gwei') }
                 );
 
                 showMessage('Transaction submitted. Waiting for confirmation...', 'loading');
@@ -607,6 +608,7 @@
                 
                 const tx = await ticketManagerContract.buyTicket(ticketId, {
                     value: priceInWei
+                    gasPrice: ethers.utils.parseUnits('30', 'gwei')
                 });
 
                 showMessage('Transaction submitted. Waiting for confirmation...', 'loading');
@@ -701,6 +703,7 @@
 
         // Call TicketNFT directly (not through TicketManager)
         const tx = await ticketNFTContract.transferFrom(userAddress, recipient, ticketId);
+         gasPrice: ethers.utils.parseUnits('30', 'gwei')
 
         showMessage('Transaction submitted. Waiting for confirmation...', 'loading');
         await tx.wait();

@@ -1,0 +1,78 @@
+{
+  "_format": "hh-sol-cache-2",
+  "files": {
+    "/Users/shuqicheah/Desktop/Blockchain_Project/contracts/TicketManager.sol": {
+      "lastModificationDate": 1779169022205,
+      "contentHash": "7860707a689dd34aa7817b7fafd689a0",
+      "sourceName": "contracts/TicketManager.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "evmVersion": "paris",
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "ITicketNFT",
+        "TicketManager"
+      ]
+    },
+    "/Users/shuqicheah/Desktop/Blockchain_Project/contracts/TicketNFT.sol": {
+      "lastModificationDate": 1779169022205,
+      "contentHash": "030d32c7ac3a2ac7ce779f3b2c384fe8",
+      "sourceName": "contracts/TicketNFT.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "evmVersion": "paris",
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "TicketNFT"
+      ]
+    }
+  }
+}

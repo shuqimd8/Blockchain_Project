@@ -1,0 +1,10 @@
+{
+  "sepolia": {
+    "ticketNFT": "0x7Cd7c557F39876Ced4b8793354354531c78C17f3",
+    "ticketManager": "0xYourTicketManagerAddress"
+  },
+  "polygon": {
+    "ticketNFT": "0xYourPolygonAddress",
+    "ticketManager": "0xYourPolygonManagerAddress"
+  }
+}
