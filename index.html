@@ -737,50 +737,32 @@
             return;
         }
 
-        // Check if ticket exists
+        // CRITICAL CHECK: Verify ticket exists
         let owner;
         try {
             owner = await ticketNFTContract.ownerOf(ticketId);
-        } catch (error) {
-            showMessage('Ticket does not exist! This ticket has not been minted yet.', 'error');
-            return;
+            console.log('Ticket owner:', owner);
+        } catch (ownerError) {
+            console.error('ownerOf failed:', ownerError);
+            showMessage('ERROR: Ticket does not exist! This ticket has not been minted.', 'error');
+            return;  // STOP HERE - do not proceed
         }
 
-        // Check for zero address
-        if (owner === ethers.constants.AddressZero || owner === '0x0000000000000000000000000000000000000000') {
-            showMessage('Ticket does not exist or has been burned!', 'error');
-            return;
+        // Additional check: ensure owner is not zero address
+        const zeroAddress = '0x0000000000000000000000000000000000000000';
+        if (!owner || owner === zeroAddress || owner === ethers.constants.AddressZero) {
+            showMessage('ERROR: Ticket does not exist or has been burned!', 'error');
+            return;  // STOP HERE
         }
 
         // Check if ticket is already used
         const ticket = await ticketNFTContract.getTicket(ticketId);
         if (ticket.isUsed) {
-            showMessage('This ticket has already been used!', 'error');
-            return;
+            showMessage('ERROR: This ticket has already been used!', 'error');
+            return;  // STOP HERE
         }
 
-        // Check event date
-        const eventDate = new Date(ticket.eventDate.toNumber() * 1000);
-        const now = new Date();
-        if (eventDate < now) {
-            const confirmExpired = confirm(
-                'Warning: This event date (' + eventDate.toLocaleDateString() + ') has passed. Continue verification?'
-            );
-            if (!confirmExpired) return;
-        }
-
-        // Show ticket info for confirmation
-        const confirmMessage = 
-            'Verify this ticket?\n\n' +
-            'Event: ' + ticket.eventName + '\n' +
-            'Seat: ' + ticket.seatNumber + '\n' +
-            'Date: ' + eventDate.toLocaleDateString() + '\n' +
-            'Owner: ' + owner.substring(0, 6) + '...' + owner.substring(38);
-        
-        if (!confirm(confirmMessage)) {
-            return;
-        }
-
+        // All checks passed - now verify
         showMessage('Verifying ticket... Please confirm transaction in MetaMask', 'loading');
 
         const tx = await ticketManagerContract.verifyTicket(ticketId, {
@@ -790,29 +772,14 @@
         showMessage('Transaction submitted. Waiting for confirmation...', 'loading');
         await tx.wait();
 
-        showMessage('Ticket verified and marked as used successfully!', 'success');
+        showMessage('Ticket marked as used successfully!', 'success');
 
         document.getElementById('verifyTicketId').value = '';
-
         await loadMyTickets();
-        await loadAvailableTickets();
 
     } catch (error) {
         console.error('Error verifying ticket:', error);
-        
-        let errorMessage = 'Error verifying ticket: ';
-        
-        if (error.message.includes('Ticket has already been used')) {
-            errorMessage = 'This ticket has already been used!';
-        } else if (error.message.includes('does not exist')) {
-            errorMessage = 'Ticket does not exist!';
-        } else if (error.message.includes('user rejected')) {
-            errorMessage = 'Transaction cancelled by user';
-        } else {
-            errorMessage += error.message;
-        }
-        
-        showMessage(errorMessage, 'error');
+        showMessage('Error verifying ticket: ' + error.message, 'error');
     }
 }
         function showMessage(text, type) {
