@@ -724,40 +724,97 @@
 }
 
         async function verifyTicket() {
-            try {
-                if (!ticketManagerContract) {
-                    showMessage('Please connect your wallet first!', 'error');
-                    return;
-                }
-
-                const ticketId = document.getElementById('verifyTicketId').value;
-
-                if (!ticketId) {
-                    showMessage('Please enter ticket ID!', 'error');
-                    return;
-                }
-
-                showMessage('Verifying ticket... Please confirm transaction in MetaMask', 'loading');
-
-                const tx = await ticketManagerContract.verifyTicket(ticketId, {
-                gasPrice: ethers.utils.parseUnits('30', 'gwei')
-                });
-
-                showMessage('Transaction submitted. Waiting for confirmation...', 'loading');
-                await tx.wait();
-
-                showMessage('Ticket marked as used successfully!', 'success');
-
-                document.getElementById('verifyTicketId').value = '';
-
-                await loadMyTickets();
-
-            } catch (error) {
-                console.error('Error verifying ticket:', error);
-                showMessage('Error verifying ticket: ' + error.message, 'error');
-            }
+    try {
+        if (!ticketManagerContract || !ticketNFTContract) {
+            showMessage('Please connect your wallet first!', 'error');
+            return;
         }
 
+        const ticketId = document.getElementById('verifyTicketId').value;
+
+        if (!ticketId) {
+            showMessage('Please enter ticket ID!', 'error');
+            return;
+        }
+
+        // Check if ticket exists
+        let owner;
+        try {
+            owner = await ticketNFTContract.ownerOf(ticketId);
+        } catch (error) {
+            showMessage('Ticket does not exist! This ticket has not been minted yet.', 'error');
+            return;
+        }
+
+        // Check for zero address
+        if (owner === ethers.constants.AddressZero || owner === '0x0000000000000000000000000000000000000000') {
+            showMessage('Ticket does not exist or has been burned!', 'error');
+            return;
+        }
+
+        // Check if ticket is already used
+        const ticket = await ticketNFTContract.getTicket(ticketId);
+        if (ticket.isUsed) {
+            showMessage('This ticket has already been used!', 'error');
+            return;
+        }
+
+        // Check event date
+        const eventDate = new Date(ticket.eventDate.toNumber() * 1000);
+        const now = new Date();
+        if (eventDate < now) {
+            const confirmExpired = confirm(
+                'Warning: This event date (' + eventDate.toLocaleDateString() + ') has passed. Continue verification?'
+            );
+            if (!confirmExpired) return;
+        }
+
+        // Show ticket info for confirmation
+        const confirmMessage = 
+            'Verify this ticket?\n\n' +
+            'Event: ' + ticket.eventName + '\n' +
+            'Seat: ' + ticket.seatNumber + '\n' +
+            'Date: ' + eventDate.toLocaleDateString() + '\n' +
+            'Owner: ' + owner.substring(0, 6) + '...' + owner.substring(38);
+        
+        if (!confirm(confirmMessage)) {
+            return;
+        }
+
+        showMessage('Verifying ticket... Please confirm transaction in MetaMask', 'loading');
+
+        const tx = await ticketManagerContract.verifyTicket(ticketId, {
+            gasPrice: ethers.utils.parseUnits('30', 'gwei')
+        });
+
+        showMessage('Transaction submitted. Waiting for confirmation...', 'loading');
+        await tx.wait();
+
+        showMessage('Ticket verified and marked as used successfully!', 'success');
+
+        document.getElementById('verifyTicketId').value = '';
+
+        await loadMyTickets();
+        await loadAvailableTickets();
+
+    } catch (error) {
+        console.error('Error verifying ticket:', error);
+        
+        let errorMessage = 'Error verifying ticket: ';
+        
+        if (error.message.includes('Ticket has already been used')) {
+            errorMessage = 'This ticket has already been used!';
+        } else if (error.message.includes('does not exist')) {
+            errorMessage = 'Ticket does not exist!';
+        } else if (error.message.includes('user rejected')) {
+            errorMessage = 'Transaction cancelled by user';
+        } else {
+            errorMessage += error.message;
+        }
+        
+        showMessage(errorMessage, 'error');
+    }
+}
         function showMessage(text, type) {
             const messageDiv = document.getElementById('message');
             messageDiv.innerHTML = `<div class="container ${type}">${text}</div>`;
