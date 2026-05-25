@@ -368,14 +368,38 @@
     </div>
 
     <!-- Verify Ticket Section -->
-    <div class="container" id="staffSection" style="display: none;">
-        <h2>Verify Ticket (Staff Only)</h2>
-        <div class="form-group">
-            <label>Ticket ID:</label>
-            <input type="number" id="verifyTicketId" placeholder="Enter ticket ID">
-        </div>
-        <button onclick="verifyTicket()">Mark as Used</button>
+<div class="container" id="staffSection" style="display: none;">
+    <h2>Verify Ticket (Staff Only)</h2>
+    <div class="form-group">
+        <label>Ticket ID:</label>
+        <input type="number" id="verifyTicketId" placeholder="Enter ticket ID">
     </div>
+    <button onclick="checkTicketOwner()">Check Ticket Owner</button>
+    
+    <!-- Owner Info Display -->
+    <div id="ownerInfoSection" style="display: none; margin-top: 20px;">
+        <div class="ticket-card">
+            <h3>Ticket Information</h3>
+            <p><strong>Ticket ID:</strong> <span id="displayTicketId"></span></p>
+            <p><strong>Event:</strong> <span id="displayEventName"></span></p>
+            <p><strong>Seat:</strong> <span id="displaySeatNumber"></span></p>
+            <p><strong>Owner Address:</strong> <span id="displayOwnerAddress" style="color: #667eea; font-family: monospace;"></span></p>
+            <p><strong>Status:</strong> <span id="displayTicketStatus"></span></p>
+            
+            <div class="form-group" style="margin-top: 15px;">
+                <label>Enter Attendee's Wallet Address:</label>
+                <input type="text" id="attendeeAddress" placeholder="0x...">
+            </div>
+            
+            <button onclick="verifyTicketWithAddress()" style="background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);">
+                Verify and Mark as Used
+            </button>
+            <button onclick="cancelVerification()" style="background: linear-gradient(135deg, #f44336 0%, #da190b 100%);">
+                Cancel
+            </button>
+        </div>
+    </div>
+</div>
 
     <!-- Load Ethers.js -->
     <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
@@ -723,10 +747,17 @@
     }
 }
 
-async function verifyTicket() {
+// Step 1: Check ticket owner
+async function checkTicketOwner() {
     try {
         if (!ticketManagerContract || !ticketNFTContract) {
             showMessage('Please connect your wallet first!', 'error');
+            return;
+        }
+
+        const organizer = await ticketManagerContract.organizer();
+        if (userAddress.toLowerCase() !== organizer.toLowerCase()) {
+            showMessage('ERROR: Only event staff can verify tickets!', 'error');
             return;
         }
 
@@ -737,66 +768,110 @@ async function verifyTicket() {
             return;
         }
 
-        // Check 1: Ticket exists
+        showMessage('Checking ticket information...', 'loading');
+
         let owner;
         try {
             owner = await ticketNFTContract.ownerOf(ticketId);
-            console.log('Ticket owner:', owner);
-        } catch (ownerError) {
-            console.error('ownerOf failed:', ownerError);
+        } catch (error) {
             showMessage('ERROR: Ticket does not exist!', 'error');
             return;
         }
 
-        // Check 2: Zero address
-        const zeroAddress = '0x0000000000000000000000000000000000000000';
-        if (!owner || owner === zeroAddress || owner === ethers.constants.AddressZero) {
-            showMessage('ERROR: Ticket does not exist or has been burned!', 'error');
-            return;
-        }
-
-        // Check 3: Ticket must be sold (not available for sale)
         const availableTickets = await ticketManagerContract.getAvailableTickets();
         const isAvailable = availableTickets.some(id => id.toString() === ticketId.toString());
         
         if (isAvailable) {
-            showMessage('ERROR: This ticket has not been sold yet! It is still available for purchase.', 'error');
+            showMessage('ERROR: This ticket has not been sold yet!', 'error');
             return;
         }
 
-        // Check 4: Already used
         const ticket = await ticketNFTContract.getTicket(ticketId);
+        
         if (ticket.isUsed) {
             showMessage('ERROR: This ticket has already been used!', 'error');
             return;
         }
 
-        // Check 5: Owner must not be the organizer
-        const organizer = await ticketManagerContract.organizer();
-        if (owner.toLowerCase() === organizer.toLowerCase()) {
-            showMessage('ERROR: This ticket still belongs to the organizer. It has not been sold.', 'error');
+        document.getElementById('displayTicketId').textContent = ticketId;
+        document.getElementById('displayEventName').textContent = ticket.eventName;
+        document.getElementById('displaySeatNumber').textContent = ticket.seatNumber;
+        document.getElementById('displayOwnerAddress').textContent = owner;
+        document.getElementById('displayTicketStatus').innerHTML = 
+            '<span class="status-badge status-available">Valid</span>';
+        
+        document.getElementById('ownerInfoSection').style.display = 'block';
+        
+        showMessage('Ticket information loaded. Verify attendee address.', 'success');
+
+    } catch (error) {
+        console.error('Error checking ticket:', error);
+        showMessage('Error checking ticket: ' + error.message, 'error');
+    }
+}
+
+// Step 2: Verify with address
+async function verifyTicketWithAddress() {
+    try {
+        const ticketId = document.getElementById('verifyTicketId').value;
+        const attendeeAddress = document.getElementById('attendeeAddress').value.trim();
+        const ownerAddress = document.getElementById('displayOwnerAddress').textContent;
+
+        if (!attendeeAddress) {
+            showMessage('Please enter attendee wallet address!', 'error');
             return;
         }
 
-        // All checks passed
-        showMessage('Verifying ticket... Please confirm transaction in MetaMask', 'loading');
+        if (!attendeeAddress.startsWith('0x') || attendeeAddress.length !== 42) {
+            showMessage('Invalid wallet address format!', 'error');
+            return;
+        }
+
+        if (attendeeAddress.toLowerCase() !== ownerAddress.toLowerCase()) {
+            showMessage('ERROR: Address DOES NOT MATCH! Entry denied.', 'error');
+            return;
+        }
+
+        const confirmVerify = confirm(
+            'Address Verified!\n\n' +
+            'Ticket ID: ' + ticketId + '\n' +
+            'Owner: ' + ownerAddress + '\n\n' +
+            'Mark as used and allow entry?'
+        );
+
+        if (!confirmVerify) {
+            showMessage('Verification cancelled.', 'error');
+            return;
+        }
+
+        showMessage('Marking ticket as used... Confirm in MetaMask', 'loading');
 
         const tx = await ticketManagerContract.verifyTicket(ticketId, {
             gasPrice: ethers.utils.parseUnits('30', 'gwei')
         });
 
-        showMessage('Transaction submitted. Waiting for confirmation...', 'loading');
+        showMessage('Transaction submitted. Waiting...', 'loading');
         await tx.wait();
 
-        showMessage('Ticket marked as used successfully!', 'success');
+        showMessage('SUCCESS: Ticket verified! Attendee may enter.', 'success');
 
         document.getElementById('verifyTicketId').value = '';
+        document.getElementById('attendeeAddress').value = '';
+        document.getElementById('ownerInfoSection').style.display = 'none';
+
         await loadMyTickets();
 
     } catch (error) {
         console.error('Error verifying ticket:', error);
         showMessage('Error verifying ticket: ' + error.message, 'error');
     }
+}
+
+// Step 3: Cancel
+function cancelVerification() {
+    document.getElementById('attendeeAddress').value = '';
+    document.getElementById('ownerInfoSection').style.display = 'none';
+    showMessage('Verification cancelled.', 'error');
 }
         function showMessage(text, type) {
             const messageDiv = document.getElementById('message');
