@@ -354,8 +354,7 @@ Parameters:
 ---
 
 ## BPMN Diagram
-
-<img width="1019" height="1789" alt="bpmn drawio (1)" src="https://github.com/user-attachments/assets/fdc78308-e608-4a38-bf4b-a512be568183" />
+<img width="1198" height="1790" alt="bpmn drawio (2)" src="https://github.com/user-attachments/assets/638c2434-c450-4a7f-a466-bf6807e08cd8" />
 
 The Business Process Model and Notation diagram illustrates the complete ticket lifecycle from minting through verification, including all stakeholder interactions and decision points.
 
