@@ -383,9 +383,10 @@ Blockchain_Project/
 ## Team Contributions
 
 ### Jasmine
-- Smart contract development and interactions
+- Smart contract development and interactions diagram
 - Backend payment transfer logic
 - Contract testing and debugging
+- PPT presentation slides
 
 ### Shuqi  
 - Project methodology and documentation
@@ -393,6 +394,7 @@ Blockchain_Project/
 - BPMN diagram creation
 - Payment transfer backend fixes
 - Multi-chain deployment
+- Front end development
 
 ---
 
@@ -415,7 +417,7 @@ Blockchain_Project/
 
 ## Academic Integrity Statement
 
-This project was developed independently without the use of AI coding assistants (ChatGPT, GitHub Copilot, etc.) in compliance with IFB452 academic integrity policies. All code was written by team members through independent research, official documentation, and course materials.
+All code was written by team members through independent research, official documentation, and course materials.
 
 ---
 
