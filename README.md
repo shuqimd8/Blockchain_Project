@@ -10,6 +10,26 @@ This system implements a decentralized NFT ticketing platform that allows:
 - **Venues** to validate tickets at entry
 - **Multi-chain deployment** showcasing blockchain scalability strategies
 
+## Why Blockchain?
+
+Blockchain technology was selected because the application requires:
+
+- Multiple independent participants
+- Shared ownership records
+- Immutable transaction history
+- Transparent ticket transfers
+- Reduced reliance on centralized systems
+
+Unlike traditional ticketing platforms, blockchain enables publicly verifiable ownership records through smart contracts.
+
+### Benefits of Blockchain
+
+- Prevents duplicate ticket creation
+- Enables transparent ticket transfers
+- Provides immutable ownership history
+- Reduces centralized dependency
+- Enables decentralized verification
+
 ## Live Demo
 
 **Website**: [https://blockchain-project-22zs.vercel.app](https://blockchain-project-22zs.vercel.app)
@@ -21,6 +41,43 @@ This system implements a decentralized NFT ticketing platform that allows:
   - Polygon Amoy MATIC: https://faucet.polygon.technology
 
 ---
+## System Architecture
+
+```text
++----------------------+
+|      Users           |
+| (MetaMask Wallets)   |
++----------+-----------+
+           |
+           v
++----------------------+
+| Frontend Interface   |
+| HTML / CSS / JS      |
+| Hosted on Vercel     |
++----------+-----------+
+           |
+        ethers.js
+           |
+           v
++----------------------+
+| TicketManager.sol    |
+| Business Logic       |
+| Sales & Transfers    |
++----------+-----------+
+           |
+           v
++----------------------+
+| TicketNFT.sol        |
+| ERC-721 NFT Storage  |
+| Ownership & Metadata |
++----------+-----------+
+           |
+           v
++----------------------+
+| Sepolia / Polygon    |
+| Blockchain Networks  |
++----------------------+
+```
 
 ## Technology Stack
 
@@ -77,6 +134,48 @@ Manages ticket marketplace and access control:
 **Separation of Concerns**: 
 - **TicketNFT**: Core token logic (ERC-721 compliance, metadata storage)
 - **TicketManager**: Business logic (sales, pricing, access control)
+
+## Smart Contract Interaction Flow
+
+```text
+Organizer
+   |
+   | mintTicket()
+   v
+TicketManager.sol
+   |
+   | calls
+   v
+TicketNFT.sol
+   |
+   | ERC-721 mint
+   v
+User Wallet
+
+--------------------------------
+
+Buyer
+   |
+   | buyTicket()
+   v
+TicketManager.sol
+   |
+   | ownership transfer
+   v
+TicketNFT.sol
+
+--------------------------------
+
+Venue Staff
+   |
+   | verifyTicket()
+   v
+TicketManager.sol
+   |
+   | markAsUsed()
+   v
+TicketNFT.sol
+```
 
 **Benefits**:
 - Easier upgrades (can replace manager without affecting NFTs)
@@ -334,12 +433,29 @@ Parameters:
 
 ## Limitations & Future Improvements
 
-### Current Limitations
-- Single organizer per deployment
-- No refund mechanism
-- Fixed pricing (no dynamic pricing/auctions)
-- Testnet only (not production-ready)
-- No secondary market royalties
+## Current Prototype Scope
+
+This project focuses on demonstrating:
+
+- Smart contract interaction
+- NFT ownership verification
+- Blockchain-based ticket validation
+- Multi-chain deployment concepts
+
+Several production-scale features were intentionally scoped out due to project constraints and timeline limitations.
+## Current Limitations
+- Single organizer deployment
+- Individual ticket minting process
+- Testnet-only deployment
+- Fixed pricing model
+- Limited secondary marketplace functionality
+
+## Future Improvements
+- Batch ticket minting for high-volume events
+- Improved scalability through Layer 2 optimization
+- Automated ticket distribution
+- Dynamic pricing mechanisms
+- Secondary resale marketplace
 
 ### Proposed Enhancements
 1. **Multi-Organizer Support**: Role-based access for multiple event creators
@@ -397,6 +513,19 @@ Blockchain_Project/
 - Front end development
 
 ---
+
+## Lessons Learned
+
+This project provided practical experience in:
+
+- Solidity smart contract development
+- ERC-721 NFT standards
+- Multi-chain deployment strategies
+- MetaMask integration
+- Blockchain scalability concepts
+- Smart contract architecture design
+- Access control implementation
+- Decentralized application development
 
 ## Course Information
 
