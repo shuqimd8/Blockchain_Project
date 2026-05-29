@@ -417,6 +417,8 @@ Parameters:
 | Transfer unowned ticket | Transaction reverted | ✓ | Pass |
 | Verify ticket | Marked as used | ✓ | Pass |
 | Transfer used ticket | Transaction reverted | ✓ | Pass |
+| Buy 5th ticket (same event) | Purchase blocked with error | ✓ | Pass |
+
 
 ### Gas Cost Comparison
 
@@ -450,6 +452,7 @@ Several production-scale features were intentionally scoped out due to project c
 - Testnet-only deployment
 - Fixed pricing model
 - Limited secondary marketplace functionality
+- Per-event ticket purchase limited to 4 tickets per wallet (frontend enforcement)
 
 ## Future Improvements
 - Batch ticket minting for high-volume events
