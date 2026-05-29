@@ -647,29 +647,48 @@
         }
 
         async function buyTicket(ticketId, price) {
-            try {
-                showMessage('Buying ticket... Please confirm transaction in MetaMask', 'loading');
-
-                const priceInWei = ethers.utils.parseEther(price);
-                
-                const tx = await ticketManagerContract.buyTicket(ticketId, {
-                value: priceInWei,
-                gasPrice: ethers.utils.parseUnits('30', 'gwei')  
-                    });
-
-                showMessage('Transaction submitted. Waiting for confirmation...', 'loading');
-                await tx.wait();
-
-                showMessage('Ticket purchased successfully!', 'success');
-
-                await loadAvailableTickets();
-                await loadMyTickets();
-
-            } catch (error) {
-                console.error('Error buying ticket:', error);
-                showMessage('Error buying ticket: ' + error.message, 'error');
+    try {
+        // Check how many tickets user already owns for this event
+        const ticketToBuy = await ticketNFTContract.getTicket(ticketId);
+        const eventName = ticketToBuy.eventName;
+        
+        const balance = await ticketNFTContract.balanceOf(userAddress);
+        let count = 0;
+        for (let i = 0; i < balance.toNumber(); i++) {
+            const ownedId = await ticketNFTContract.tokenOfOwnerByIndex(userAddress, i);
+            const ownedTicket = await ticketNFTContract.getTicket(ownedId);
+            if (ownedTicket.eventName === eventName) {
+                count++;
             }
         }
+        
+        if (count >= 4) {
+            showMessage('You can only buy up to 4 tickets per event!', 'error');
+            return;
+        }
+
+        showMessage('Buying ticket... Please confirm transaction in MetaMask', 'loading');
+
+        const priceInWei = ethers.utils.parseEther(price);
+        
+        const tx = await ticketManagerContract.buyTicket(ticketId, {
+            value: priceInWei,
+            gasPrice: ethers.utils.parseUnits('30', 'gwei')  
+        });
+
+        showMessage('Transaction submitted. Waiting for confirmation...', 'loading');
+        await tx.wait();
+
+        showMessage('Ticket purchased successfully!', 'success');
+
+        await loadAvailableTickets();
+        await loadMyTickets();
+
+    } catch (error) {
+        console.error('Error buying ticket:', error);
+        showMessage('Error buying ticket: ' + error.message, 'error');
+    }
+}
 
         async function loadMyTickets() {
             try {
